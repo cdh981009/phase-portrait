@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="portrait" width="400" height="400"></canvas>
+    <script>
+        var canvas = document.getElementById("portrait");
+        var ctx = canvas.getContext("2d");
+        var init = true;
+        var start = -1;
+        var end = +2;
+        var step = 0.02;
+        var t = start;
+        var c1, c2;
+        var y1, y2;
+        var f1, f2;
+
+        f1 = 9;
+        f2 = 9;
+
+        var values = [
+            [0, 1, false],
+            [0, -1, false],
+            [1, 0, false],
+            [-1, 0, false],
+
+            [1, 1, false],
+            [-1, -1, false],
+
+            [2, 2, false],
+            [2, -2, false],
+            [-2, -2, false],
+            [-2, 2, false],
+
+            [3, 3, false],
+            [3, -3, false],
+            [-3, -3, false],
+            [-3, 3, false],
+
+            [4, 4, false],
+            [4, -4, false],
+            [-4, -4, false],
+            [-4, 4, false],
+
+            [-5, -5, false],
+            [5, 5, false],
+
+            [-1, 2, true],
+        ];
+
+        var prev = new Array();
+        for (var i = 0; i < values.length; ++i) {
+            prev[i] = [0, 0, 0];
+        }
+
+        // https://stackoverflow.com/questions/26804679/how-can-i-draw-arrows-on-a-canvas-with-mouse
+        function drawLineWithArrowhead(p0, p1, headLength) {
+
+            // constants (could be declared as globals outside this function)
+            var PI = Math.PI;
+            var degreesInRadians225 = 225 * PI / 180;
+            var degreesInRadians135 = 135 * PI / 180;
+
+            // calc the angle of the line
+            var dx = p1.x - p0.x;
+            var dy = p1.y - p0.y;
+            var angle = Math.atan2(dy, dx);
+
+            // calc arrowhead points
+            var x225 = p1.x + headLength * Math.cos(angle + degreesInRadians225);
+            var y225 = p1.y + headLength * Math.sin(angle + degreesInRadians225);
+            var x135 = p1.x + headLength * Math.cos(angle + degreesInRadians135);
+            var y135 = p1.y + headLength * Math.sin(angle + degreesInRadians135);
+
+            // draw line plus arrowhead
+            ctx.beginPath();
+            // draw the line from p0 to p1
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            // draw partial arrowhead at 225 degrees
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(x225, y225);
+            // draw partial arrowhead at 135 degrees
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(x135, y135);
+            // stroke the line and arrowhead
+            ctx.stroke();
+        }
+
+        function plot() {
+            
+
+            for (var i = 0; i < values.length; ++i) {
+                var curr = values[i];
+
+                c1 = curr[0];
+                c2 = curr[1];
+                
+                // change here for another function
+                y1 = 2 * c1 * Math.exp(-3 * t) + c2 * Math.exp(4 * t);
+                y2 = -5 * c1 * Math.exp(-3 * t) + c2 * Math.exp(4 * t);
+
+                y1 = y1 * f1 + canvas.width / 2;
+                y2 = -y2 * f2 + canvas.height / 2
+
+                if (t != start) {
+                    if (curr[2] === true) {
+                        ctx.strokeStyle = "red";
+                    } else {
+                        ctx.strokeStyle = "blue";
+                    }
+                    var threshold = 100;
+                    var drawArrow = (prev[i][2] > threshold);
+                    if (drawArrow) {
+                        drawLineWithArrowhead({x: prev[i][0], y: prev[i][1]}, {x: y1, y: y2}, 4);
+                        prev[i][2] = 0;
+                    } else {
+                        ctx.beginPath();
+                        ctx.moveTo(prev[i][0], prev[i][1]);
+                        ctx.lineTo(y1, y2);
+                        ctx.stroke();
+                    }
+                }
+                prev[i][2] += Math.sqrt((y1 - prev[i][0]) * (y1 - prev[i][0]) + (y2 - prev[i][1]) * (y2 - prev[i][1]));
+                console.log(prev[i][2]);
+                prev[i][0] = y1;
+                prev[i][1] = y2;
+            }
+        }
+
+        function draw() {
+            if (init) {
+                ctx.strokeStyle = "black";
+                ctx.moveTo(0, canvas.height / 2);
+                ctx.lineTo(canvas.width, canvas.height / 2);
+                ctx.stroke();
+
+                ctx.moveTo(canvas.width / 2, 0);
+                ctx.lineTo(canvas.width / 2, canvas.height);
+                ctx.stroke();
+
+                init = false;
+            } else if (t <= end) {
+                plot();
+                t += step;
+            }
+        }
+
+        setInterval(draw, 10);
+    </script>
+</body>
+
+</html>
