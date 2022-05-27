@@ -14,25 +14,27 @@
         var canvas = document.getElementById("portrait");
         var ctx = canvas.getContext("2d");
         var init = true;
-        var start = -1;
-        var end = +2;
-        var step = 0.02;
+        var start = -5;
+        var end = +5;
+        var step = 0.04;
         var t = start;
         var c1, c2;
         var y1, y2;
         var f1, f2;
 
-        f1 = 9;
-        f2 = 9;
+        f1 = 30;
+        f2 = 30;
 
         var values = [
             [0, 1, false],
             [0, -1, false],
-            [1, 0, false],
+            // [1, 0, false],
             [-1, 0, false],
 
             [1, 1, false],
             [-1, -1, false],
+            [-1, 1, false],
+            [1, -1, false],
 
             [2, 2, false],
             [2, -2, false],
@@ -51,8 +53,15 @@
 
             [-5, -5, false],
             [5, 5, false],
+            [5, -5, false],
+            [-5, 5, false],
 
-            [-1, 2, true],
+            [-8, -8, false],
+            [8, 8, false],
+            [8, -8, false],
+            [-8, 8, false],
+
+            [0.5, 0, true],
         ];
 
         var prev = new Array();
@@ -104,8 +113,8 @@
                 c2 = curr[1];
                 
                 // change here for another function
-                y1 = 2 * c1 * Math.exp(-3 * t) + c2 * Math.exp(4 * t);
-                y2 = -5 * c1 * Math.exp(-3 * t) + c2 * Math.exp(4 * t);
+                y1 = c1 * Math.exp(t) + c2 * Math.exp(5 * t);
+                y2 = -c1 * Math.exp(t) + c2 * Math.exp(5 * t);
 
                 y1 = y1 * f1 + canvas.width / 2;
                 y2 = -y2 * f2 + canvas.height / 2
@@ -116,7 +125,7 @@
                     } else {
                         ctx.strokeStyle = "blue";
                     }
-                    var threshold = 100;
+                    var threshold = 50;
                     var drawArrow = (prev[i][2] > threshold);
                     if (drawArrow) {
                         drawLineWithArrowhead({x: prev[i][0], y: prev[i][1]}, {x: y1, y: y2}, 4);
